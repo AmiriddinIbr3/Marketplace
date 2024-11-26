@@ -1,0 +1,12 @@
+.productForm {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.productForm input:not(input[type=file]) {
+    width: 100%;
+    border-radius: var(--input-radius);
+}

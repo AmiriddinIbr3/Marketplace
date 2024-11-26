@@ -1,0 +1,12 @@
+.wrapper {
+    width: max-content;
+    margin: 0 auto;
+    padding: 2px 12px;
+    background-color: #0000004b;
+    border-radius: 99999px;
+}
+
+.data {
+    font-size: 14px;
+    font-weight: 400;
+}

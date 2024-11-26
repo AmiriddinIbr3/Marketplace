@@ -1,0 +1,14 @@
+.searchbtn {
+    padding: 10px;
+    background-color: var(--button-bg-color);
+    border-radius: 0 var(--input-radius) var(--input-radius) 0;
+}
+
+.searchbtn.minWidth {
+    padding: 10px 20px;
+    border-radius: var(--input-radius);
+}
+
+.searchInput {
+    border-radius: var(--boutton-radius) 0 0 var(--boutton-radius);
+}

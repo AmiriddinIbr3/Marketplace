@@ -1,0 +1,40 @@
+.chat {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    width: 100%;
+    height: 55px;
+    border-bottom: 2px solid var(--bg-border-color);
+}
+
+.chat:last-child {
+    border-bottom: none;
+}
+
+.chat div {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat div .titleInfo,
+.chat div .descriptionInfo {
+    display: grid;
+    grid-template-columns: max-content 1fr max-content;
+    overflow-wrap: break-word;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    overflow: hidden;
+}
+
+.chat div .titleInfo .title {
+    grid-area: 2;
+    font-size: 14px;
+}
+
+.chat div .descriptionInfo .lastMessage {
+    grid-area: 2;
+    font-size: 12px;
+    font-weight: 300;
+}

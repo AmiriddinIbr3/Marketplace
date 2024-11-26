@@ -1,0 +1,189 @@
+version: '3.9'
+services:
+  redis:
+    image: 'redis:latest'
+    container_name: "marketplace-redis"
+    ports:
+      - '6379:6379'
+    expose:
+      - "6379"
+
+
+  postgres:
+    image: 'postgres:latest'
+    container_name: "marketplace-database"
+    user: postgres
+    environment:
+      - POSTGRES_PASSWORD=
+      - POSTGRES_USER=
+      - POSTGRES_DB=marketplace
+      - PGPORT=3020
+
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - marketplace-data:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=50"
+      - "-c"
+      - "shared_buffers=1GB"
+      - "-c"
+      - "effective_cache_size=4GB"
+      - "-c"
+      - "work_mem=16MB"
+      - "-c"
+      - "maintenance_work_mem=512MB"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "temp_file_limit=10GB"
+      - "-c"
+      - "log_min_duration_statement=200ms"
+      - "-c"
+      - "idle_in_transaction_session_timeout=10s"
+      - "-c"
+      - "lock_timeout=1s"
+      - "-c"
+      - "statement_timeout=60s"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.max=10000"
+      - "-c"
+      - "pg_stat_statements.track=all"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d marketplace"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
+    ports:
+      - "3020:3020"
+    expose:
+      - "3020"
+
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4:7.2
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=
+      - PGADMIN_DEFAULT_PASSWORD=
+      - PGADMIN_CONFIG_SERVER_MODE=
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    ports:
+      - "7020:80"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+    depends_on:
+      - postgres
+
+
+  postgres_exporter:
+    container_name: exporter_container
+    image: prometheuscommunity/postgres-exporter:v0.10.1
+    environment:
+      - DATA_SOURCE_URI=
+      - DATA_SOURCE_USER=
+      - DATA_SOURCE_PASS=
+      - PG_EXPORTER_EXTEND_QUERY_PATH=/etc/postgres_exporter/queries.yaml
+    volumes:
+      - ./queries.yaml:/etc/postgres_exporter/queries.yaml:ro
+    ports:
+      - "9187:9187"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 500M
+    depends_on:
+      - postgres
+
+
+  web:
+    build: ./marketplace-client
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000/api/
+      - NEXT_PUBLIC_EXPIRING_ACCESS_TOKEN_MINUTES=30
+      - NEXT_PUBLIC_HOST_URL=http://localhost:4000
+    ports:
+      - 4000:4000
+    expose:
+      - "4000"
+    depends_on:
+      - api
+
+
+  phone-service:
+    build: ./golang-phone-microservice
+    environment:
+      - TWILIO_PHONE_NUMBER=
+      - TWILIO_ACCOUNT_SID=
+      - TWILIO_AUTH_TOKEN=
+    ports:
+      - 50051:50051
+    expose:
+      - "50051"
+
+
+  api:
+    build: ./marketplace-server
+    environment:
+      - DATABASE_URL=
+
+      - GLOBAL_PRODUCT_IMAGES_DIR=imageUploads/product
+      - GLOBAL_AVATAR_IMAGES_DIR=imageUploads/avatar
+      - GLOBAL_VIDEO_DIR=videoUploads
+
+      - JWT_ACCESS_SECRET=yourAccessToken
+      - ACCESS_TOKEN_EXPIRING_MINUTES=30
+
+      - JWT_REFRESH_SECRET=yourRefreshToken
+      - REFRESH_TOKEN_EXPIRING_HOURS=24
+
+      - COOKIE_PARSER_SECRET=yourCookie
+
+      - MAILRU_HOST_SMTP=smtp.mail.ru
+      - MAILRU_PORT_SMTP=465
+      - MAILRU_MAIL_SMTP=
+      - MAILRU_PASS_SMTP=
+
+      - API_URL=http://localhost
+      - API_PORT=3000
+
+      - CLIENT_URL=http://localhost
+      - CLIENT_PORT=4000
+
+      - REDIS_HOST=marketplace-redis
+      - REDIS_PORT=6379
+
+      - PHONE_SERVICE_HOST=phone-service
+      - PHONE_SERVICE_PORT=50051
+
+      - SMS_SERVICE_HOST=phone-service
+      - SMS_SERVICE_PORT=50051
+    ports:
+      - 3000:3000
+    expose:
+      - "3000"
+    depends_on:
+      - postgres
+      - redis
+      - phone-service
+
+volumes:
+  marketplace-data:
+  pgadmin-data:

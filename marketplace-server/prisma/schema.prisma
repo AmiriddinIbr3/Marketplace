@@ -1,0 +1,394 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+}
+
+model Image {
+  id                String          @id @default(cuid())
+  url               String
+
+  productsAsMain    Product[]       @relation("ProductMainImage")
+  profiles          Profile[]       @relation("ProfileAvatars")
+  productsAsImages  Product[]       @relation("ProductImages")
+
+  author            User            @relation(fields: [authorId], references: [id])
+  authorId          String
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model Product {
+  id                String          @id @default(cuid())
+
+  title             String
+  price             Int
+  description       String?
+  likes             Int             @default(0)
+
+  images            Image[]         @relation("ProductImages")
+  categories        Category[]      @relation("ProductCategories")
+  Like              Like[]
+
+  mainImage         Image?          @relation("ProductMainImage", fields: [mainImageId], references: [id])
+  mainImageId       String?
+
+  author            User            @relation(fields: [authorId], references: [id])
+  authorId          String
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model Like {
+  id                String          @id @default(cuid())
+
+  author            User            @relation(fields: [authorId], references: [id])
+  authorId          String
+
+  product           Product         @relation(fields: [productId], references: [id])
+  productId         String
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([authorId, productId])
+}
+
+model Category {
+  id                String          @id @default(cuid())
+
+  name              String
+
+  products          Product[]       @relation("ProductCategories")
+}
+
+model User {
+  id                String          @id @default(cuid())
+
+  phone             String
+  countryCode       String
+
+  email             String          @unique
+  name              String
+  surname           String?
+  username          String          @unique
+  password          String
+  isActivated       Boolean         @default(false)
+  ip                String
+  role              UserRole        @default(USER)
+  
+  likes             Like[]
+  products          Product[]
+  images            Image[]
+  messages          Message[]
+
+  token             Token?
+  activationLink    ActivationLink?
+
+  profile           Profile?
+
+  privateRoomParticipants PrivateRoomParticipant[]
+  groupRoomUsers    GroupRoomUser[]
+  channelRoomUsers ChannelRoomUser[]
+
+  createdGroups     GroupRoom[]     @relation("GroupRoomCreator")
+  createdChannels   ChannelRoom[]   @relation("ChannelRoomCreator")
+  createdInviteLinks InviteLink[]   @relation("UserCreatedInviteLinks")
+
+  invitesCreated    Invite[]        @relation("UserCreatedInvites")
+  invitesReceived   Invite[]        @relation("UserInvited")
+
+  notices     Notice[]
+
+  @@unique([phone, countryCode])
+}
+
+enum UserRoleInPrivate {
+  CHATCREATOR
+  COMPANION
+}
+
+enum UserRoleInGroup {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum UserRoleInChannel {
+  OWNER
+  ADMIN
+  SUBSCRIBER
+}
+
+model PrivateRoomParticipant {
+  id                String          @id @default(cuid())
+
+  user              User            @relation(fields: [userId], references: [id])
+  userId            String
+
+  role              UserRoleInPrivate
+
+  privateRoom       PrivateRoom    @relation(fields: [privateRoomId], references: [id])
+  privateRoomId     String
+
+  @@unique([userId, privateRoomId])
+}
+
+model GroupRoomUser {
+  id                String          @id @default(cuid())
+
+  user              User            @relation(fields: [userId], references: [id])
+  userId            String
+
+  role              UserRoleInGroup
+
+  groupRoom         GroupRoom       @relation(fields: [groupRoomId], references: [id])
+  groupRoomId       String
+
+  @@index([userId, groupRoomId])
+}
+
+model ChannelRoomUser {
+  id                String          @id @default(cuid())
+
+  user              User            @relation(fields: [userId], references: [id])
+  userId            String
+
+  role              UserRoleInChannel
+
+  channelRoom       ChannelRoom    @relation(fields: [channelRoomId], references: [id])
+  channelRoomId     String
+
+  @@index([userId, channelRoomId])
+}
+
+model Profile {
+  id                String          @id @default(cuid())
+
+  description       String?
+
+  avatars           Image[]         @relation("ProfileAvatars")
+
+  user              User            @relation(fields: [userId], references: [id])
+  userId            String          @unique
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model Token {
+  id                String          @id @default(cuid())
+
+  token             String          @unique
+
+  user              User            @relation(fields: [userId], references: [id])
+  userId            String          @unique
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model ActivationLink {
+  id                String          @id @default(cuid())
+
+  link              String          @unique
+
+  user              User            @relation(fields: [userId], references: [id])
+  userId            String          @unique
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+enum EmojiType {
+  HAPPY
+  SAD
+  ANGRY
+  SURPRISED
+  LOVE
+  CONFUSED
+}
+
+model Emoji {
+  id                String          @id @default(cuid())
+  symbol            String
+  type              EmojiType
+  
+  messages          Message[]
+
+  createdAt         DateTime        @default(now())
+}
+
+model Message {
+  id                String          @id @default(cuid())
+  content           String
+
+  emojis            Emoji[]
+
+  privateRoom       PrivateRoom?    @relation("PrivateRoomMessages", fields: [privateRoomId], references: [id])
+  privateRoomId     String?
+
+  groupRoom         GroupRoom?      @relation("GroupRoomMessages", fields: [groupRoomId], references: [id])
+  groupRoomId       String?
+
+  channelRoom       ChannelRoom?    @relation("ChannelRoomMessages", fields: [channelRoomId], references: [id])
+  channelRoomId     String?
+
+  author            User            @relation(fields: [authorId], references: [id])
+  authorId          String
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([privateRoomId, groupRoomId, channelRoomId])
+}
+
+model PrivateRoom {
+  id                String          @id @default(cuid())
+
+  participants      PrivateRoomParticipant[]
+
+  messages          Message[]       @relation("PrivateRoomMessages")
+
+  createdAt         DateTime        @default(now())
+}
+
+model GroupRoom {
+  id                String          @id @default(cuid())
+
+  users             GroupRoomUser[]
+
+  creator           User            @relation("GroupRoomCreator", fields: [creatorId], references: [id])
+  creatorId         String
+
+  messages          Message[]       @relation("GroupRoomMessages")
+  inviteLinks       InviteLink[]    @relation("GroupRoomInviteLinks")
+  invites           Invite[]        @relation("GroupRoomInvites")
+
+  inviteLinkRestriction GroupInviteLinkRestriction? @relation("GroupRoomInviteLinkRestriction")
+  inviteRestrictions GroupInviteRestriction? @relation("GroupRoomInviteRestriction")
+
+  createdAt         DateTime        @default(now())
+}
+
+model ChannelRoom {
+  id                String          @id @default(cuid())
+  topic             String
+
+  users           ChannelRoomUser[]
+
+  creator           User            @relation("ChannelRoomCreator", fields: [creatorId], references: [id])
+  creatorId         String
+
+  messages          Message[]       @relation("ChannelRoomMessages")
+  inviteLinks       InviteLink[]    @relation("ChannelRoomInviteLinks")
+  invites           Invite[]        @relation("ChannelRoomInvites")
+
+  inviteLinkRestriction ChannelInviteLinkRestriction? @relation("ChannelRoomInviteLinkRestriction")
+  inviteRestrictions ChannelInviteRestriction? @relation("ChannelRoomInviteRestriction")
+
+  createdAt         DateTime        @default(now())
+}
+
+model InviteLink {
+  id                String          @id @default(cuid())
+  link              String          @unique
+
+  groupRoom         GroupRoom?      @relation("GroupRoomInviteLinks", fields: [groupRoomId], references: [id])
+  groupRoomId       String?
+
+  channelRoom       ChannelRoom?    @relation("ChannelRoomInviteLinks", fields: [channelRoomId], references: [id])
+  channelRoomId     String?
+
+  createdBy         User            @relation("UserCreatedInviteLinks", fields: [createdById], references: [id])
+  createdById       String
+
+  expiresAt         DateTime?
+  isActive          Boolean         @default(true)
+
+  @@unique([link, groupRoomId, channelRoomId])
+}
+
+model GroupInviteLinkRestriction {
+  id                String          @id @default(cuid())
+  maxLinks          Int?
+  expirationTime    Int?
+  role              UserRoleInGroup @default(OWNER)
+
+  groupRoom         GroupRoom       @relation("GroupRoomInviteLinkRestriction", fields: [groupRoomId], references: [id])
+  groupRoomId       String          @unique
+}
+
+model ChannelInviteLinkRestriction {
+  id                String          @id @default(cuid())
+  maxLinks          Int?
+  expirationTime    Int?
+  role              UserRoleInGroup @default(OWNER)
+
+  channelRoom       ChannelRoom     @relation("ChannelRoomInviteLinkRestriction", fields: [channelRoomId], references: [id])
+  channelRoomId     String          @unique
+}
+
+model Invite {
+  id                String          @id @default(cuid())
+  invitedUser       User?           @relation("UserInvited", fields: [invitedUserId], references: [id])
+  invitedUserId     String?
+
+  groupRoom         GroupRoom?      @relation("GroupRoomInvites", fields: [groupRoomId], references: [id])
+  groupRoomId       String?
+
+  channelRoom       ChannelRoom?    @relation("ChannelRoomInvites", fields: [channelRoomId], references: [id])
+  channelRoomId     String?
+
+  expiresAt         DateTime?
+  isActive          Boolean         @default(true)
+
+  createdBy         User            @relation("UserCreatedInvites", fields: [createdById], references: [id])
+  createdById       String
+
+  @@unique([createdById, invitedUserId, groupRoomId, channelRoomId])
+}
+
+model ChannelInviteRestriction {
+  id                String          @id @default(cuid())
+  expirationTime    Int?
+  role              UserRoleInChannel @default(SUBSCRIBER)
+
+  channelRoom       ChannelRoom     @relation("ChannelRoomInviteRestriction", fields: [channelRoomId], references: [id])
+  channelRoomId     String          @unique
+
+  @@index([channelRoomId])
+}
+
+model GroupInviteRestriction {
+  id                String          @id @default(cuid())
+  expirationTime    Int?
+  role              UserRoleInGroup @default(MEMBER)
+
+  groupRoom         GroupRoom       @relation("GroupRoomInviteRestriction", fields: [groupRoomId], references: [id])
+  groupRoomId       String          @unique
+
+  @@index([groupRoomId])
+}
+
+model Notice {
+  id                String          @id @default(cuid())
+
+  user              User            @relation(fields: [userId], references: [id])
+  userId            String
+
+  title             String
+  body              String
+  checked           Boolean         @default(false)
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}

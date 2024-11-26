@@ -1,0 +1,70 @@
+.container {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.container::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+.window__content {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    height: min-content;
+    margin: 20px;
+    padding: 20px;
+    border-radius: 12px;
+    background-color: var(--bg-color);
+    border: 2px solid var(--modal-border-color);
+    -webkit-box-shadow: 0px 0px 8px 5px var(--modal-shadow-color);
+    -moz-box-shadow: 0px 0px 8px 5px var(--modal-shadow-color);
+    box-shadow: 0px 0px 8px 5px var(--modal-shadow-color);
+}
+
+.modal__close {
+    border-radius: 10px;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.minwidth > .modal__close {
+    margin: 10px 20px 10px 0;
+    border: 1px solid #fff;
+    position: relative;
+    justify-self: end;
+}
+
+.modal {
+    pointer-events: none;
+    transform: scale(0);
+    transition: 0.5s;
+}
+
+.modal.active {
+    pointer-events: all;
+    transform: scale(1);
+}
+
+.minwidth {
+    width: 100%;
+    height: min-content;
+    padding: 20px;
+}
+
+.container.minwidth {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+}

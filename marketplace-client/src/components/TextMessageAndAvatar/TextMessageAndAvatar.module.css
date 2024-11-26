@@ -1,0 +1,8 @@
+.message {
+    display: flex;
+    align-items: flex-end;
+}
+
+.message.right {
+    flex-direction: row-reverse;
+}

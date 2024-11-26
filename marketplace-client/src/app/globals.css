@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, :after, :before {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-noNotice: #a0acb6;
+
+  --navbar-padding-y: 10px;
+  --navbar-padding-x: 25px;
+  --navbar-border-size: 2px;
+
+  --bg-color2: #1F1F1F;
+  --bg-border-color: #232323;
+  --bg-color: #181818;
+  --text-color: #ffffff;
+
+  --bg-color2-hover: #2c2c2c;
+
+  --modal-border-color: #444141;
+  --modal-shadow-color: #44414133;
+  
+  --button-text-color: #ffffff;
+  --button-bg-color: #fff;
+  --boutton-radius: 6px;
+
+  --input-bg-color: #524e4e;
+  --input-border-color: #444141;
+  --input-shadow_insert-color: #44414180;
+  --input-shadow-color: #44414133;
+  --input-placeholder-color: #d4d4d4;
+  --input-autofill_bg-color: #524e4e;
+  --input-autofill_text-color: #fff;
+  --input-radius: 6px;
+
+  --contrast-bg-color: #6B9935;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+main {
+  width: 100%;
+}
+
+textarea,
+input {
+  outline: none;
+  background-color: var(--input-bg-color);
+}
+
+input {
+  -webkit-box-shadow: 0px 0px 8px 5px var(--input-shadow-color);
+  -moz-box-shadow: 0px 0px 8px 5px var(--input-shadow-color);
+  box-shadow: 0px 0px 8px 5px var(--input-shadow-color);
+}
+
+input:not(input[type=file]) {
+  border: 1px solid var(--input-border-color);
+  color: var(--text-color);
+  display: block;
+  padding: 7px 15px;
+}
+
+input[type=file] {
+  display: none;
+}
+
+.custom-file-upload {
+  border: 1px solid #ccc;
+  border-radius: var(--boutton-radius);
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+input::placeholder {
+  color: var(--input-placeholder-color);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+input:-internal-autofill-selected {
+  color: var(--input-autofill_text-color) !important;
+  -webkit-text-fill-color: var(--input-autofill_text-color) !important;
+  -webkit-box-shadow: 0px 0px 10px 30px var(--input-autofill_bg-color) inset !important;
+  -moz-box-shadow: 0px 0px 10px 30px var(--input-autofill_bg-color) inset !important;
+  box-shadow: 0px 0px 10px 30px var(--input-autofill_bg-color) inset !important;
+}
+
+button {
+  padding: 10px 20px;
+  border-radius: var(--boutton-radius);
+}
+
+.btns-wrapper button {
+  margin: 0 5px;
+}
+
+.btns-wrapper button:first-child {
+  margin-left: 0;
+}
+
+.btns-wrapper button:last-child {
+  margin-right: 0;
+}
+
+.error-text {
+  color: tomato;
+}

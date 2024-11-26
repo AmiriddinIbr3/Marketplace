@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package phone;
+
+option go_package = "services/common/genproto/phone;phone";
+
+service PhoneService {
+    rpc checkPhone (ValidPhoneByNumber) returns (ValidatedPhone) {}
+}
+
+message ValidPhoneByNumber {
+    string phone_number = 1;
+}
+  
+message ValidatedPhone {
+    string phone_number = 1;
+    bool valid = 2;
+    string country_code = 3;
+}

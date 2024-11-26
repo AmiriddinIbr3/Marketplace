@@ -1,0 +1,30 @@
+.notificationsPanel {
+    max-height: 450px;
+    overflow-y: auto;
+
+    background-color: var(--bg-color2);
+    border: 2px solid var(--bg-border-color);
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+
+    margin-top: calc(var(--navbar-padding-y) + var(--navbar-border-size));
+}
+
+.notificationsPanel::-webkit-scrollbar {
+    width: 20px;
+}
+  
+.notificationsPanel::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+  
+.notificationsPanel::-webkit-scrollbar-thumb {
+    background-color: #d6dee1;
+    border-radius: 20px;
+    border: 6px solid transparent;
+    background-clip: content-box;
+}
+  
+.notificationsPanel::-webkit-scrollbar-thumb:hover {
+    background-color: #a8bbbf;
+}

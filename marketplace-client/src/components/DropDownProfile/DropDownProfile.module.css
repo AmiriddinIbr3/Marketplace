@@ -1,0 +1,18 @@
+.userPanel {
+    background-color: var(--bg-color2);
+    border: 2px solid var(--bg-border-color);
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+
+    margin-top: calc(var(--navbar-padding-y) + var(--navbar-border-size));
+}
+
+.userPanel button {
+    transition: background-color 0.2s;
+    width: 100%;
+}
+
+.userPanel button:hover {
+    background-color: var(--bg-color2-hover);
+    border-radius: 0;
+}

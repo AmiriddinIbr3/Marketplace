@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package sms;
+
+service SmsService {
+    rpc SendSmsOnPhone (SendSmsOnNumber) returns (SendedSms) {}
+}
+
+message SendSmsOnNumber {
+    string phone_number = 1;
+    string message = 2;
+}
+  
+message SendedSms {
+    string phone_number = 1;
+    bool sended = 2;
+}
